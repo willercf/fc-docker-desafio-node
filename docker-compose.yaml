@@ -1,0 +1,50 @@
+version: "3"
+
+services:
+
+  db:
+    image: willercf/mysql-fullcycle
+    command: --innodb-use-native-aio=0 --init-file=/tmp/create-tables.sql
+    container_name: db-mysql
+    restart: always
+    tty: true
+    volumes:
+      - /tmp/myqsl-data:/var/lib/mysql
+    environment:
+      - MYSQL_DATABASE=nodedb
+      - MYSQL_ROOT_PASSWORD=root
+    networks:
+      - node-network
+    ports:
+      - "3306:3306"
+
+  app:
+    build:
+      context: app
+    container_name: app-node
+    entrypoint: dockerize -wait tcp://db-mysql:3306 -timeout 50s docker-entrypoint.sh
+    command: "node index.js"
+    networks:
+      - node-network
+    volumes:
+      - ./app:/usr/src/app
+    tty: true
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+  
+  proxy:
+    image: willercf/nginx-fullcycle
+    container_name: app-proxy
+    tty: true
+    networks:
+      - node-network
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
+
+networks:
+  node-network:
+    driver: bridge
