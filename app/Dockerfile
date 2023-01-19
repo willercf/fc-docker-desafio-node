@@ -1,11 +1,11 @@
-FROM node:15
+FROM node:18.13.0
 
 WORKDIR /usr/src/app
 
-COPY . .
+COPY package*.json .
 RUN apt-get update && apt-get install -y wget
-RUN npm install express --save && npm install mysql --save
-RUN echo ls /usr/src/app
+RUN npm install
+COPY . .
 
 ENV DOCKERIZE_VERSION v0.6.1
 RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSION/dockerize-linux-amd64-$DOCKERIZE_VERSION.tar.gz \
@@ -14,4 +14,4 @@ RUN wget https://github.com/jwilder/dockerize/releases/download/$DOCKERIZE_VERSI
 
 EXPOSE 3000
 
-CMD ["node", "index.js"]
+CMD ["node", "/usr/src/app/index.js"]

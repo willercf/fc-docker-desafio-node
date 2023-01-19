@@ -27,7 +27,8 @@ services:
     networks:
       - node-network
     volumes:
-      - ./app:/usr/src/app
+      - ./app/:/usr/src/app
+      - /usr/src/app
     tty: true
     ports:
       - "3000:3000"
